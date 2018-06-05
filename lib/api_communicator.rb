@@ -5,26 +5,28 @@ require 'pry'
 def get_character_movies_from_api(character)
   #make the web request
 
-  #counter = 1
-  #puts "Going through again time number #{counter}"
-  api_link = 'http://www.swapi.co/api/people/' #?page= #+ counter.to_s
-
-  all_characters = RestClient.get(api_link)
-  character_hash = JSON.parse(all_characters)
+film_array = []
+api_link = 'http://www.swapi.co/api/people/'
 
 
-  # iterate over the character hash to find the collection of `films` for the given
-  #   `character`
-  film_array = []
-  character_hash["results"].each do |attributes|
-    if attributes["name"] == character
-      film_array = attributes["films"]
-    #else
-      #counter += 1
+  while true
+
+    all_characters = RestClient.get(api_link)
+    character_hash = JSON.parse(all_characters)
+
+    character_hash["results"].each do |attributes|
+      if attributes["name"] == character
+        film_array = attributes["films"]
+      end
+    end
+
+    if film_array.length > 0
+      return film_array
+    else
+      api_link = character_hash["next"]
     end
   end
 
-  film_array
 end
 
 # collect those film API urls, make a web request to each URL to get the info
