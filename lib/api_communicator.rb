@@ -9,10 +9,13 @@ def get_character_movies_from_api(character)
   format_film_hash(film_hash_to_array(character_hash, character))
 end
 
+# collect those film API urls, make a web request to each URL to get the info
+#  for that film
+# return value of this method should be collection of info about each film.
 def format_film_hash(array)
   films_hash = {}
   array.each do |url|
-    films_hash[url] = JSON.parse(RestClient.get(url))
+    films_hash[url] = get_hash(url)
   end
   films_hash
 end
@@ -27,19 +30,10 @@ def film_hash_to_array(hash, character)
   films_array
 end
 
-
-
-  # collect those film API urls, make a web request to each URL to get the info
-  #  for that film
-
-  # return value of this method should be collection of info about each film.
-
   #  i.e. an array of hashes in which each hash reps a given film
   # this collection will be the argument given to `parse_character_movies`
   #  and that method will do some nice presentation stuff: puts out a list
   #  of movies by title. play around with puts out other info about a given film.
-
-
 
 def parse_character_movies(films_hash)
   # some iteration magic and puts out the movies in a nice list
@@ -59,6 +53,7 @@ def show_character_movies(character)
   end
 end
 
+
 ## BONUS
 
 # that `get_character_movies_from_api` method is probably pretty long. Does it do more than one job?
@@ -73,55 +68,42 @@ def search_user_input
   format_entry_hash(return_entry_hash(user))
 end
 
+def get_hash(url)
+  JSON.parse(RestClient.get(url))
+end
+
 def return_entry_hash(input_string)
-  all_data = RestClient.get('http://www.swapi.co/api/')
-  data_hash = JSON.parse(all_data)
-  #sample_data = RestClient.get('http://www.swapi.co/api/people/')
+  data_hash = get_hash('http://www.swapi.co/api/')
 
   data_hash.each do |category, url|
-
-    url_info = JSON.parse(RestClient.get(url))
-    # while url_info["next"] != nil do
-    #   (JSON.parse(RestClient.get(url_info["next"])))["results"].each do |unit|
-    #     url_info["results"] << unit
-    #     next_page_hash = JSON.parse(RestClient.get(url_info["next"]))
-    #     url_info["next"] = next_page_hash["next"]
-    #     binding.pry
-    #   end
-    #   binding.pry
-    #   end
-  end_of_file = 0
+    url_info = get_hash(url)
+    end_of_file = 0
       while end_of_file == 0 do
         url_info["results"].each do |entry|
           if entry["name"]
-            if entry["name"] == input_string
-              return entry
-            end
+            return entry if entry["name"] == input_string
           elsif entry["title"]
-            if entry["title"]== input_string
-              return entry
-
-            end
+            return entry if entry["title"] == input_string
           end
         end
         if url_info["next"]
-          url_info["results"] = JSON.parse(RestClient.get(url_info["next"]))["results"]
-          url_info["next"] = JSON.parse(RestClient.get(url_info["next"]))["next"]
+          url_info["results"] = get_hash(url_info["next"])["results"]
+          url_info["next"] = get_hash(url_info["next"])["next"]
         else
-        end_of_file = 1
+          end_of_file = 1
         end
       end
     end
 end
 
 def format_entry_hash(hash)
-  hash.each do |category,value|
+  hash.each do |category, value|
     if value.class == String
       puts "#{category.capitalize}: #{value}."
     elsif value.class == Array
       display_string = "#{category.capitalize}: "
       value.each do |url|
-        url_info = JSON.parse(RestClient.get(url))
+        url_info = get_hash(url)
         if url_info["name"]
           display_string += url_info["name"] + ", "
         elsif url_info["title"]
@@ -130,10 +112,5 @@ def format_entry_hash(hash)
       end
       puts display_string.chomp(", ")
     end
-    
   end
-
 end
-
-# data = JSON.parse(RestClient.get("https://swapi.co/api/people/?page=9"))
-# puts "#{data["next"] == nil}"
