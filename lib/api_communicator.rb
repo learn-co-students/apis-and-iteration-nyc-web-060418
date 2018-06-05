@@ -14,10 +14,8 @@ api_link = 'http://www.swapi.co/api/people/'
     all_characters = RestClient.get(api_link)
     character_hash = JSON.parse(all_characters)
 
-    character_hash["results"].each do |attributes|
-      if attributes["name"] == character
-        film_array = attributes["films"]
-      end
+    character_hash["results"].find do |attributes|
+      film_array = attributes["films"]
     end
 
     if film_array.length > 0
