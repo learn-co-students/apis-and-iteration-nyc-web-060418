@@ -69,7 +69,6 @@ def get_user_input
 end
 
 def search_user_input
-  puts "Input search term: "
   user = get_user_input
   format_entry_hash(return_entry_hash(user))
 end
@@ -78,21 +77,41 @@ def return_entry_hash(input_string)
   all_data = RestClient.get('http://www.swapi.co/api/')
   data_hash = JSON.parse(all_data)
   #sample_data = RestClient.get('http://www.swapi.co/api/people/')
-  data_hash.each do |category, url|
-    url_info = JSON.parse(RestClient.get(url))
 
-    url_info["results"].each do |entry|
-      if entry["name"]
-        if entry["name"] == input_string
-          return entry
+  data_hash.each do |category, url|
+
+    url_info = JSON.parse(RestClient.get(url))
+    # while url_info["next"] != nil do
+    #   (JSON.parse(RestClient.get(url_info["next"])))["results"].each do |unit|
+    #     url_info["results"] << unit
+    #     next_page_hash = JSON.parse(RestClient.get(url_info["next"]))
+    #     url_info["next"] = next_page_hash["next"]
+    #     binding.pry
+    #   end
+    #   binding.pry
+    #   end
+  end_of_file = 0
+      while end_of_file == 0 do
+        url_info["results"].each do |entry|
+          if entry["name"]
+            if entry["name"] == input_string
+              return entry
+            end
+          elsif entry["title"]
+            if entry["title"]== input_string
+              return entry
+
+            end
+          end
         end
-      elsif entry["title"]
-        if entry["title"]== input_string
-          return entry
+        if url_info["next"]
+          url_info["results"] = JSON.parse(RestClient.get(url_info["next"]))["results"]
+          url_info["next"] = JSON.parse(RestClient.get(url_info["next"]))["next"]
+        else
+        end_of_file = 1
         end
       end
     end
-  end
 end
 
 def format_entry_hash(hash)
@@ -111,7 +130,10 @@ def format_entry_hash(hash)
       end
       puts display_string.chomp(", ")
     end
+    
   end
+
 end
 
-search_user_input
+# data = JSON.parse(RestClient.get("https://swapi.co/api/people/?page=9"))
+# puts "#{data["next"] == nil}"
