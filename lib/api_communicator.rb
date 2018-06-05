@@ -3,8 +3,6 @@ require 'json'
 require 'pry'
 
 
-
-
 def get_character_movies_from_api(character)
   #make the web request
   film_hash_array = []
@@ -13,6 +11,21 @@ def get_character_movies_from_api(character)
   character_hash = JSON.parse(all_characters)
 
   chara_name = character_hash["results"].find { |character_info| character_info["name"] == character }
+
+
+    until chara_name != nil
+      #p character_hash["next"]
+      all_characters = RestClient.get(character_hash["next"])
+      character_hash = JSON.parse(all_characters)
+      if chara_name = character
+        chara_name = character_hash["results"].find { |character_info| character_info["name"] == character }
+        break
+      end
+    end
+
+
+
+  binding.pry
 
   chara_name["films"].map do |film|
     film_list = RestClient.get(film)
@@ -33,7 +46,7 @@ def get_character_movies_from_api(character)
   #  of movies by title. play around with puts out other info about a given film.
   #binding.pry
 end
-
+get_character_movies_from_api ("Luminara Unduli")
 
 
 
