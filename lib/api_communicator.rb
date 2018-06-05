@@ -4,10 +4,13 @@ require 'pry'
 
 def get_character_movies_from_api(character)
   #make the web request
-  all_characters = RestClient.get('http://www.swapi.co/api/people/')
-  character_hash = JSON.parse(all_characters)
+  x = 1
   collected_films = []
   films_hash = {}
+  while x < 10
+  all_characters = RestClient.get("https://swapi.co/api/people/?page=" + "#{x}")
+  character_hash = JSON.parse(all_characters)
+  x +=1
   character_hash["results"].each do |hash|
     hash.find do |name, value|
       if name == "name" && value.downcase == "#{character}"
@@ -22,6 +25,7 @@ def get_character_movies_from_api(character)
     film_info_hash = JSON.parse(film_api)
     films_hash[url] = film_info_hash
   end
+end
   films_hash
 end
 
@@ -43,7 +47,7 @@ def show_character_movies(character)
   films_hash = get_character_movies_from_api(character)
   parse_character_movies(films_hash)
 end
-## BONUS
-
+# BONUS
+#
 # that `get_character_movies_from_api` method is probably pretty long. Does it do more than one job?
 # can you split it up into helper methods?
