@@ -1,26 +1,23 @@
 require 'rest-client'
 require 'json'
 require 'pry'
+require_relative "./command_line_interface.rb"
 
+#character = "Luke Skywalker"
 
-character = "Luke Skywalker"
-
-def get_character_movies_from_api(character)
+def get_character_movies_from_api
   #make the web request
   all_characters = RestClient.get('http://www.swapi.co/api/people/')
   character_hash = JSON.parse(all_characters)
 end
 
 def find_character(character)
-  character_result_hash = get_character_movies_from_api(character)
-  character_result_hash.each do |key, value|
-    if key == "results"
-      value.each do |individual_character_hash|
-        individual_character_hash.each do |attribute, detail|
-          if detail == character
-            return individual_character_hash
-          end
-        end
+  character_result_hash = get_character_movies_from_api
+  all_character_array = character_result_hash["results"]
+  all_character_array.each do |character_hash|    # key = count, results... value = 87, individual_character_hashes
+    character_hash.collect do |attribute, detail| # value is a array  attribute = name, films, etc.  detail = "Luke", "male"
+      if detail.downcase == character
+        return character_hash
       end
     end
   end
@@ -39,12 +36,15 @@ def film_info_request(character)
   film_collection_array = []
 
   film_array = find_movies(character)
+  #puts "film info request"
+
   film_array.collect do |url|
+    #puts url
     film_result = RestClient.get(url)
     film_result_hash = JSON.parse(film_result)
     film_collection_array << film_result_hash
   end
-  film_collection_array
+   film_collection_array
 end
 
   # iterate over the character hash to find the collection of `films` for the given
@@ -71,12 +71,14 @@ end
 
 
 def show_character_movies(character)
+  #puts "show character movies"
   films_hash = film_info_request(character)
   parse_character_movies(films_hash)
-  binding.pry
+  #binding.pry
 end
 
-show_character_movies(character)
+
+#show_character_movies(character)
 
 ## BONUS
 
