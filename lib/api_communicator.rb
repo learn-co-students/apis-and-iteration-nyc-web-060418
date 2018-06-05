@@ -2,6 +2,7 @@ require 'rest-client'
 require 'json'
 require 'pry'
 
+
 character = "Luke Skywalker"
 
 def get_character_movies_from_api(character)
@@ -56,10 +57,9 @@ end
   #  and that method will do some nice presentation stuff: puts out a list
   #  of movies by title. play around with puts out other info about a given film.
 
-films_hash = film_info_request(character)
 
-def parse_character_movies(films_hash)
-  films_hash.collect do |film|
+def parse_character_movies(film_collection_array)
+  film_collection_array.collect do |film|
     film.collect do |attribute, result|
       if attribute == "title"
         puts result
