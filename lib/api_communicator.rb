@@ -3,31 +3,43 @@ require 'json'
 require 'pry'
 
 
+def find_character (character)
+
+  api_url = 'https://www.swapi.co/api/people/'
+  chara_name = {}
+  loop do
+
+
+    all_characters = RestClient.get(api_url)
+    character_hash = JSON.parse(all_characters)
+
+    chara_name = character_hash["results"].find do |character_info|
+      character_info["name"] == character
+    end
+    #p chara_name
+    #p character_hash["next"]
+    #p api_url
+    if chara_name
+      break
+    elsif chara_name == nil
+      api_url = character_hash["next"]
+    end
+
+  end
+
+  chara_name
+  #binding.pry
+end
+
+
 def get_character_movies_from_api(character)
   #make the web request
   film_hash_array = []
 
-  all_characters = RestClient.get('http://www.swapi.co/api/people/')
-  character_hash = JSON.parse(all_characters)
+  name_hash = find_character(character)
+  #binding.pry
 
-  chara_name = character_hash["results"].find { |character_info| character_info["name"] == character }
-
-
-    until chara_name != nil
-      #p character_hash["next"]
-      all_characters = RestClient.get(character_hash["next"])
-      character_hash = JSON.parse(all_characters)
-      if chara_name = character
-        chara_name = character_hash["results"].find { |character_info| character_info["name"] == character }
-        break
-      end
-    end
-
-
-
-  binding.pry
-
-  chara_name["films"].map do |film|
+  name_hash["films"].map do |film|
     film_list = RestClient.get(film)
     film_hash = JSON.parse(film_list)
     film_hash_array << film_hash
@@ -46,7 +58,7 @@ def get_character_movies_from_api(character)
   #  of movies by title. play around with puts out other info about a given film.
   #binding.pry
 end
-get_character_movies_from_api ("Luminara Unduli")
+#get_character_movies_from_api("Tion Medon")
 
 
 
