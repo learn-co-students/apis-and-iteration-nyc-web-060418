@@ -7,7 +7,7 @@ def get_character_movies_from_api(character)
   x = 1
   collected_films = []
   films_hash = {}
-  while x < 10
+  while collected_films.size < 1
   all_characters = RestClient.get("https://swapi.co/api/people/?page=" + "#{x}")
   character_hash = JSON.parse(all_characters)
   x +=1
